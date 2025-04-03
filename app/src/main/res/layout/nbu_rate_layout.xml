@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="7dp"
+    android:background="@drawable/calc_btn_func"
+    android:backgroundTint="@color/main_layout_bg"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="5dp">
+
+    <TextView
+        android:id="@+id/nbu_rate_cc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        tools:text="DZD"/>
+
+    <TextView
+        android:id="@+id/nbu_rate_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Алжирський динар"/>
+
+    <TextView
+        android:id="@+id/nbu_rate_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        tools:text="0.30886"/>
+
+</LinearLayout>

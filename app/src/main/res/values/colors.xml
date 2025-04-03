@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Кольори головного екрану -->
+    <color name="main_layout_bg">#D7C98F</color>  <!-- Бежевий фон -->
+    <color name="main_title_fg">#1717BF</color>   <!-- Темно-синій текст -->
+    <!-- Calculator colors -->
+    <color name="calc_btn_equals">#FF9800</color>
+    <color name="calc_btn_equals_pressed">#E68A00</color>
+    <color name="calc_btn_func">#323232</color>
+    <color name="calc_btn_func_pressed">#282828</color>
+    <color name="calc_btn_operation">#5D5D5D</color>
+    <color name="calc_btn_operation_pressed">#4D4D4D</color>
+    <color name="calc_btn_digit">#3B3B3B</color>
+    <color name="calc_btn_digit_pressed">#2E2E2E</color>
+    <color name="calc_layout_bg">#202020</color>
+    <color name="calc_tv_expression">#9B9B9B</color>
+    <color name="calc_tv_result">#FDFDFD</color>
+
+    <!-- Кольори для активності курсів валют -->
+    <color name="rates_layout_bg">#E7DCAD</color>  <!-- Світло-бежевий фон -->
+    <color name="rates_text_fg">#091C81</color>   <!-- Темно-синій текст -->
+    <color name="rates_item_bg">#F5F5F5</color>  <!-- Фон елементів списку -->
+    <color name="rates_item_text">#212121</color> <!-- Текст елементів списку -->
+</resources>

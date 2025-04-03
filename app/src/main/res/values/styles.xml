@@ -1,0 +1,34 @@
+<resources>
+    <!-- Base button style -->
+    <style name="calc_btn">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:elevation">2dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="backgroundTint">@null</item>
+    </style>
+
+    <!-- Function buttons style -->
+    <style name="calc_btn_func" parent="calc_btn">
+        <item name="android:background">@drawable/calc_btn_func_bg</item>
+    </style>
+
+    <!-- Digit buttons style -->
+    <style name="calc_btn_digit" parent="calc_btn">
+        <item name="android:background">@drawable/calc_btn_digit_bg</item>
+    </style>
+
+    <!-- Operation buttons style -->
+    <style name="calc_btn_operation" parent="calc_btn">
+        <item name="android:background">@drawable/calc_btn_operation_bg</item>
+    </style>
+
+    <!-- Equals button special style -->
+    <style name="calc_btn_equals" parent="calc_btn">
+        <item name="android:background">@drawable/calc_btn_equals_bg</item>
+    </style>
+</resources>
