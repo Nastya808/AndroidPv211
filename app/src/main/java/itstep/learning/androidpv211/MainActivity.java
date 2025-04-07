@@ -35,8 +35,3 @@ public class MainActivity extends AppCompatActivity {
         startActivity( new Intent( this, RatesActivity.class ) );
     }
 }
-/*
-Д.З. Створити проєкт. Налаштувати конфігурацію / оточення запуску.
-Реалізувати розподіл ресурсів (літерали, кольори).
-Прикласти скріншоти запущеного проєкту.
- */
