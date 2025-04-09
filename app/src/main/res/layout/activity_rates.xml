@@ -17,7 +17,11 @@
         android:text="@string/rates_tv_title"
         android:textColor="@color/rates_text_fg"
         android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:id="@+id/nbu_rate_date"
+        android:layout_margin="16dp"
+        />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rates_rv_container"

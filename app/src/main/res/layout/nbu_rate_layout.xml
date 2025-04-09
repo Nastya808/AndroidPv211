@@ -15,19 +15,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        tools:text="DZD"/>
+        tools:text="DZD" />
 
     <TextView
         android:id="@+id/nbu_rate_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Алжирський динар"/>
+        tools:text="Алжирський динар" />
 
     <TextView
         android:id="@+id/nbu_rate_rate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        tools:text="0.30886"/>
-
+        tools:text="0.30886" />
 </LinearLayout>
