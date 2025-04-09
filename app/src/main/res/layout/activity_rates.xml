@@ -1,27 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="16dp"
     android:background="@color/rates_layout_bg"
     tools:context=".RatesActivity">
 
+    <!-- Текст с датой курса -->
     <TextView
+        android:id="@+id/nbu_rate_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
         android:gravity="center"
-        android:text="@string/rates_tv_title"
+        android:text="Курсы валют"
         android:textColor="@color/rates_text_fg"
         android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:layout_marginBottom="10dp" />
 
+    <!-- Кнопка выбора даты -->
+    <Button
+        android:id="@+id/btn_pick_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Обрати дату"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp" />
+
+    <!-- Поле поиска -->
+    <SearchView
+        android:id="@+id/rates_sv_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:queryHint="Пошук за назвою або кодом"
+        android:layout_marginBottom="10dp" />
+
+    <!-- Список курсов -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rates_rv_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
 </LinearLayout>
