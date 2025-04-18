@@ -30,8 +30,50 @@ public class ChatMessageViewHolder extends RecyclerView.ViewHolder {
 
     public void setChatMessage(ChatMessage chatMessage) {
         this.chatMessage = chatMessage;
-        tvAuthor.setText( this.chatMessage.getAuthor() );
-        tvText.setText( this.chatMessage.getText() );
-        tvMoment.setText( momentFormat.format( this.chatMessage.getMoment() ) );
+        tvAuthor.setText(this.chatMessage.getAuthor());
+        tvText.setText(this.chatMessage.getText());
+        tvMoment.setText(getSmartMoment(this.chatMessage.getMoment()));
     }
+
+    private String getSmartMoment(java.util.Date moment) {
+        long now = System.currentTimeMillis();
+        long msgTime = moment.getTime();
+
+        long diff = now - msgTime;
+
+        // Милісекунди в одиницях часу
+        long minute = 60_000L;
+        long hour = 60 * minute;
+        long day = 24 * hour;
+
+        java.util.Calendar msgCal = java.util.Calendar.getInstance();
+        msgCal.setTime(moment);
+
+        java.util.Calendar nowCal = java.util.Calendar.getInstance();
+
+        // Сьогодні
+        if (nowCal.get(java.util.Calendar.YEAR) == msgCal.get(java.util.Calendar.YEAR) &&
+                nowCal.get(java.util.Calendar.DAY_OF_YEAR) == msgCal.get(java.util.Calendar.DAY_OF_YEAR)) {
+            return new SimpleDateFormat("HH:mm", Locale.getDefault()).format(moment);
+        }
+
+        // Вчора
+        nowCal.add(java.util.Calendar.DAY_OF_YEAR, -1);
+        if (nowCal.get(java.util.Calendar.YEAR) == msgCal.get(java.util.Calendar.YEAR) &&
+                nowCal.get(java.util.Calendar.DAY_OF_YEAR) == msgCal.get(java.util.Calendar.DAY_OF_YEAR)) {
+            return "вчора " + new SimpleDateFormat("HH:mm", Locale.getDefault()).format(moment);
+        }
+
+        // Протягом останнього тижня
+        long daysAgo = diff / day;
+        if (daysAgo < 7) {
+            return daysAgo + " дні(в) тому";
+        }
+
+        // Інакше — повна дата і час
+        return momentFormat.format(moment);
+    }
+
+
+
 }
