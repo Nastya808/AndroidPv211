@@ -4,6 +4,25 @@
     <string name="main_tv_title">Знайомство з Android</string>
     <string name="main_btn_calc">Калькулятор</string>
     <string name="main_btn_rates">Курси валют</string>
+    <string name="main_btn_anim">Анімації</string>
+    <string name="main_btn_chat">Чат</string>
+
+    <string name="chat_tv_title">Теревеньки</string>
+    <string name="chat_tv_author">Автор:</string>
+    <string name="chat_author_hint">Ваш нік у чаті</string>
+    <string name="chat_send_hint">Надіслати повідомлення</string>
+    <string name="chat_message_hint">Введіть повідомлення</string>
+    <string name="chat_content_hint">Останні повідомлення</string>
+    <string name="chat_msg_no_author">Введіть ваш нік</string>
+    <string name="chat_msg_no_text">Введіть повідомлення</string>
+    <string name="chat_msg_no_send">Надсилання зупинене</string>
+    <string name="chat_msg_no_send_btn">Зрозуміло</string>
+
+
+    <string name="anim_tv_title">Анімації</string>
+    <string name="anim_tv_alpha">Прозорість</string>
+    <string name="anim_tv_rotate">Поворот</string>
+    <string name="anim_tv_scale">Масштаб</string>
 
     <!-- region Rates -->
     <string name="rates_tv_title">Курси валют від НБУ</string>

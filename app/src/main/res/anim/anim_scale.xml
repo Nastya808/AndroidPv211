@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scale
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromXScale="1"
+    android:fromYScale="1"
+    android:toXScale="1.25"
+    android:toYScale="1.35"
+    android:pivotX="50%"
+    android:pivotY="50%"
+    android:repeatMode="reverse"
+    android:repeatCount="3"
+    android:duration="800"
+    />
+
+<!--
+Окремі анімації мають два параметри, що змінюються
+Анімація масштабу також має нерухому точку
+repeatMode - задає режим повторення анімації (reverse / restart)
+repeatCount - визначає кількість повторень анімації (всього 1 основний хід + кількість повторень)
+при реверсі половина повторень іде як зворотній хід
+-->

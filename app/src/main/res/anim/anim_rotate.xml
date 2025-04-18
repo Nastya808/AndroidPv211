@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rotate
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromDegrees="0"
+    android:toDegrees="360"
+    android:duration="800"/>
+
+<!--
+Анімації можуть переповнювати контейнер
+Для того щоб дозволити видимість переповнення
+необхідно зазначити android:clipChildren="false"
+!! у батьківському контейнері по відношенню до
+   того, який переповнюється
+-->
