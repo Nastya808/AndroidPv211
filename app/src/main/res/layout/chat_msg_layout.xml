@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_msg_layout"
+    android:gravity="start"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="5dp"
+        android:background="@drawable/calc_btn_func"
+        android:backgroundTint="@color/rates_layout_bg"
+        android:orientation="vertical"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="10dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/chat_msg_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                tools:text="Author"/>
+            <TextView
+                android:id="@+id/chat_msg_moment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textStyle="italic"
+                tools:text="11.04 19:53"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/chat_msg_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Hello, World!"/>
+    </LinearLayout>
+
+</LinearLayout>
