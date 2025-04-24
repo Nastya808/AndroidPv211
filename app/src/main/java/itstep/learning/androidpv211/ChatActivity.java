@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 
 import itstep.learning.androidpv211.chat.ChatMessageAdapter;
 import itstep.learning.androidpv211.orm.ChatMessage;
@@ -49,7 +50,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatMessageAdapter chatMessageAdapter;
     private final Handler handler = new Handler();
     private boolean isAuthorLocked = false;
-
+    private final ReentrantLock messagesLock = new ReentrantLock(); // Для синхронізації потоків
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +65,15 @@ public class ChatActivity extends AppCompatActivity {
             );
             return insets;
         });
+
         pool = Executors.newFixedThreadPool( 3 );
+
+        // Завантажуємо повідомлення з БД асинхронно
+        loadMessagesFromDbAsync();
+
+        // Оновлюємо чат з сервера
         updateChat();
+
         etAuthor = findViewById( R.id.chat_et_author );
         etMessage = findViewById( R.id.chat_et_message );
 
@@ -79,15 +87,79 @@ public class ChatActivity extends AppCompatActivity {
         findViewById( R.id.chat_btn_send ).setOnClickListener( this::onSendClick );
     }
 
-    private void updateChat() {
-        CompletableFuture
-                .supplyAsync( () -> Services.fetchUrl( chatUrl ), pool )
-                .thenApply( this::parseChatResponse )
-                .thenAccept( this::processChatResponse );
-        Log.i("updateChat", "updated");
-        handler.postDelayed( this::updateChat, 2000 );
+    private void loadMessagesFromDbAsync() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                // Отримуємо повідомлення з БД
+                List<ChatMessage> dbMessages = getMessagesFromDatabase();
+
+                messagesLock.lock();
+                try {
+                    // Додаємо тільки унікальні повідомлення
+                    for (ChatMessage message : dbMessages) {
+                        if (messages.stream().noneMatch(cm -> cm.getId().equals(message.getId()))) {
+                            messages.add(message);
+                        }
+                    }
+
+                    // Сортуємо повідомлення
+                    messages.sort(Comparator.comparing(ChatMessage::getMoment));
+
+                    // Оновлюємо UI
+                    runOnUiThread(() -> {
+                        chatMessageAdapter.notifyDataSetChanged();
+                        if (!messages.isEmpty()) {
+                            rvContent.scrollToPosition(messages.size() - 1);
+                        }
+                    });
+                } finally {
+                    messagesLock.unlock();
+                }
+            } catch (Exception e) {
+                Log.e("loadMessagesFromDb", "Error loading messages from DB", e);
+            }
+        }, pool);
     }
 
+    // Заглушка для методу отримання повідомлень з БД
+    private List<ChatMessage> getMessagesFromDatabase() {
+        // Тут має бути реалізація отримання повідомлень з локальної БД
+        // Повертаємо порожній список, якщо БД ще не реалізована
+        return new ArrayList<>();
+    }
+
+    private void updateChat() {
+        CompletableFuture
+                .supplyAsync(() -> Services.fetchUrl(chatUrl), pool)
+                .thenApply(this::parseChatResponse)
+                .thenAccept(this::processChatResponse);
+        Log.i("updateChat", "updated");
+        handler.postDelayed(this::updateChat, 2000);
+    }
+
+    private void processChatResponse(List<ChatMessage> parsedMessages) {
+        messagesLock.lock();
+        try {
+            int oldSize = messages.size();
+            for (ChatMessage m : parsedMessages) {
+                if (messages.stream().noneMatch(cm -> cm.getId().equals(m.getId()))) {
+                    messages.add(m);
+                }
+            }
+            int newSize = messages.size();
+            if (newSize > oldSize) {
+                messages.sort(Comparator.comparing(ChatMessage::getMoment));
+                runOnUiThread(() -> {
+                    chatMessageAdapter.notifyItemRangeInserted(oldSize, newSize - oldSize);
+                    rvContent.scrollToPosition(newSize - 1);
+                });
+            }
+        } finally {
+            messagesLock.unlock();
+        }
+    }
+
+    // Інші методи залишаються без змін
     private void onSendClick(View view) {
         String alertMessage = null;
         String author = etAuthor.getText().toString();
@@ -111,101 +183,60 @@ public class ChatActivity extends AppCompatActivity {
             return;
         }
 
-        // Заблокувати поле автора після першого відправлення
         if (!isAuthorLocked) {
             isAuthorLocked = true;
-            runOnUiThread(() -> etAuthor.setEnabled(false));  // Блокуємо редагування автора
+            runOnUiThread(() -> etAuthor.setEnabled(false));
         }
 
-        // Відправляємо повідомлення
         CompletableFuture.runAsync(
                 () -> sendChatMessage(new ChatMessage(author, message)),
                 pool
         ).thenRun(() -> {
             runOnUiThread(() -> {
-                etMessage.setText(""); // Очистити поле повідомлення
+                etMessage.setText("");
             });
         });
     }
 
-
-    private void sendChatMessage( ChatMessage chatMessage ) {
-        /*
-        Надсилання даних на прикладі форми
-        Метод імітує надсилання форми з полями "author" та "msg":
-        POST {chatUrl}
-        Content-Type: application/x-www-form-urlencoded
-        Accept: application/json
-        Accept-Language: uk
-        Connection: close
-        X-Powered-By: AndroidPv211
-
-        author={author}&msg={message}
-
-        author=The Author&msg=Hello, All!  --- неправильно
-        author=The%20Author&msg=Hello,%20All!  --- правильно
-         */
+    private void sendChatMessage(ChatMessage chatMessage) {
         String charset = StandardCharsets.UTF_8.name();
         try {
-            String body = String.format( Locale.ROOT,
+            String body = String.format(Locale.ROOT,
                     "author=%s&msg=%s",
-                    URLEncoder.encode( chatMessage.getAuthor(), charset ),
-                    URLEncoder.encode( chatMessage.getText(), charset )
+                    URLEncoder.encode(chatMessage.getAuthor(), charset),
+                    URLEncoder.encode(chatMessage.getText(), charset)
             );
-            URL url = new URL( chatUrl );
+            URL url = new URL(chatUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput( true );   // очікуємо відповідь (можна читати)
-            connection.setDoOutput( true );  // буде передача даних (тіло)
-            connection.setRequestMethod( "POST" );
-            connection.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded" );   // що передаємо
-            connection.setRequestProperty( "Accept", "application/json" );   // що очікуємо у відповідь
-            connection.setRequestProperty( "Connection", "close" );
-            connection.setRequestProperty( "X-Powered-By", "AndroidPv211" );
-            connection.setChunkedStreamingMode( 0 );   // не ділити на частини
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Connection", "close");
+            connection.setRequestProperty("X-Powered-By", "AndroidPv211");
+            connection.setChunkedStreamingMode(0);
 
             OutputStream bodyStream = connection.getOutputStream();
-            bodyStream.write( body.getBytes( charset ) );
+            bodyStream.write(body.getBytes(charset));
             bodyStream.flush();
             bodyStream.close();
 
             int statusCode = connection.getResponseCode();
-            if( statusCode == 201 ) {
-                // даний сервер не надає тіла, якщо воно потрібне, то читаємо connection.getInputStream()
+            if (statusCode == 201) {
                 updateChat();
-            }
-            else {
-                // відповідь у стані "помилка" передається через connection.getErrorStream()
+            } else {
                 InputStream errorStream = connection.getErrorStream();
-                Log.e("sendChatMessage", Services.readAllText( errorStream ) ) ;
+                Log.e("sendChatMessage", Services.readAllText(errorStream));
                 errorStream.close();
             }
             connection.disconnect();
-        }
-        catch (UnsupportedEncodingException ex) {
-            Log.e("sendChatMessage", "UnsupportedEncodingException " + ex.getMessage() );
-        }
-        catch (MalformedURLException ex) {
-            Log.e("sendChatMessage", "MalformedURLException " + ex.getMessage() );
-        }
-        catch (IOException ex) {
-            Log.e("sendChatMessage", "IOException " + ex.getMessage() );
-        }
-    }
-
-    private void processChatResponse( List<ChatMessage> parsedMessages ) {
-        int oldSize = messages.size();
-        for( ChatMessage m : parsedMessages ) {
-            if( messages.stream().noneMatch( cm -> cm.getId().equals( m.getId() ) ) ) {
-                messages.add( m );
-            }
-        }
-        int newSize = messages.size();
-        if( newSize > oldSize ) {
-            messages.sort(Comparator.comparing(ChatMessage::getMoment));
-            runOnUiThread(() -> {
-                chatMessageAdapter.notifyItemRangeInserted(oldSize, newSize - oldSize);
-                rvContent.scrollToPosition( newSize - 1 );
-            });
+        } catch (UnsupportedEncodingException ex) {
+            Log.e("sendChatMessage", "UnsupportedEncodingException " + ex.getMessage());
+        } catch (MalformedURLException ex) {
+            Log.e("sendChatMessage", "MalformedURLException " + ex.getMessage());
+        } catch (IOException ex) {
+            Log.e("sendChatMessage", "IOException " + ex.getMessage());
         }
     }
 
@@ -213,15 +244,12 @@ public class ChatActivity extends AppCompatActivity {
         List<ChatMessage> res = new ArrayList<>();
         try {
             JSONObject root = new JSONObject(body);
-
-            // Перевірка статусу
             int status = root.getInt("status");
             if (status != 1) {
                 Log.w("parseChatResponse", "Запит завершився зі статусом " + status + ", обробка ігнорується.");
-                return res; // повертаємо порожній список
+                return res;
             }
 
-            // Якщо статус коректний, обробляємо масив повідомлень
             JSONArray arr = root.getJSONArray("data");
             int len = arr.length();
             for (int i = 0; i < len; i++) {
@@ -233,12 +261,10 @@ public class ChatActivity extends AppCompatActivity {
         return res;
     }
 
-
     @Override
     protected void onDestroy() {
         handler.removeMessages(0);
         pool.shutdownNow();
         super.onDestroy();
     }
-
 }
