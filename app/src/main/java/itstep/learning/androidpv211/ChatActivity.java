@@ -48,6 +48,8 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView rvContent;
     private ChatMessageAdapter chatMessageAdapter;
     private final Handler handler = new Handler();
+    private boolean isAuthorLocked = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,31 +88,46 @@ public class ChatActivity extends AppCompatActivity {
         handler.postDelayed( this::updateChat, 2000 );
     }
 
-    private void onSendClick( View view ) {
+    private void onSendClick(View view) {
         String alertMessage = null;
-        String author = etAuthor.getText().toString() ;
-        String message = etMessage.getText().toString() ;
-        if( author.isBlank() ) {
-            alertMessage = getString( R.string.chat_msg_no_author );
+        String author = etAuthor.getText().toString();
+        String message = etMessage.getText().toString();
+
+        if (author.isBlank()) {
+            alertMessage = getString(R.string.chat_msg_no_author);
+        } else if (message.isBlank()) {
+            alertMessage = getString(R.string.chat_msg_no_text);
         }
-        else if( message.isBlank() ) {
-            alertMessage = getString( R.string.chat_msg_no_text );
-        }
-        if( alertMessage != null ) {
+
+        if (alertMessage != null) {
             new AlertDialog.Builder(this, android.R.style.ThemeOverlay_Material_Dialog_Alert)
-                    .setTitle( R.string.chat_msg_no_send )
-                    .setMessage( alertMessage )
-                    .setIcon( android.R.drawable.ic_delete )
-                    .setPositiveButton( R.string.chat_msg_no_send_btn, (dlg, btn) -> {} )
-                    .setCancelable( false )
+                    .setTitle(R.string.chat_msg_no_send)
+                    .setMessage(alertMessage)
+                    .setIcon(android.R.drawable.ic_delete)
+                    .setPositiveButton(R.string.chat_msg_no_send_btn, (dlg, btn) -> {
+                    })
+                    .setCancelable(false)
                     .show();
             return;
         }
+
+        // Заблокувати поле автора після першого відправлення
+        if (!isAuthorLocked) {
+            isAuthorLocked = true;
+            runOnUiThread(() -> etAuthor.setEnabled(false));  // Блокуємо редагування автора
+        }
+
+        // Відправляємо повідомлення
         CompletableFuture.runAsync(
-                () -> sendChatMessage( new ChatMessage( author, message ) ),
+                () -> sendChatMessage(new ChatMessage(author, message)),
                 pool
-        );
+        ).thenRun(() -> {
+            runOnUiThread(() -> {
+                etMessage.setText(""); // Очистити поле повідомлення
+            });
+        });
     }
+
 
     private void sendChatMessage( ChatMessage chatMessage ) {
         /*
@@ -186,7 +203,7 @@ public class ChatActivity extends AppCompatActivity {
         if( newSize > oldSize ) {
             messages.sort(Comparator.comparing(ChatMessage::getMoment));
             runOnUiThread(() -> {
-                chatMessageAdapter.notifyItemRangeChanged( oldSize, newSize );
+                chatMessageAdapter.notifyItemRangeInserted(oldSize, newSize - oldSize);
                 rvContent.scrollToPosition( newSize - 1 );
             });
         }
